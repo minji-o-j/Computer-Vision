@@ -1,0 +1,695 @@
+#pragma warning(disable:4996)
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>//비트맵 파일헤더 인포헤더 팔레트에 해당하는 구조체 정보를 가짐
+#include <math.h>//abs
+
+void InverseImage(BYTE* Img, BYTE *Out, int W, int H)
+{
+	int ImgSize = W * H;
+	for (int i = 0; i < ImgSize; i++)
+	{
+		Out[i] = 255 - Img[i];
+	}
+}
+void BrightnessAdj(BYTE* Img, BYTE* Out, int W, int H, int Val)//밝기, Val: 조절하기 원하는 밝기값
+{
+	int ImgSize = W * H;
+	for (int i = 0; i < ImgSize; i++)
+	{
+		if (Img[i] + Val > 255)		//클리핑
+		{
+			Out[i] = 255;
+		}
+		else if (Img[i] + Val < 0)	//클리핑
+		{
+			Out[i] = 0;
+		}
+		else 	Out[i] = Img[i] + Val;
+	}
+}
+void ContrastAdj(BYTE* Img, BYTE* Out, int W, int H, double Val)//대비, Val: 조절하기 원하는 밝기값
+{
+	int ImgSize = W * H;
+	for (int i = 0; i < ImgSize; i++)
+	{
+		if (Img[i] * Val > 255.0)	//클리핑
+		{
+			Out[i] = 255;
+		}
+		else 	Out[i] = (BYTE)(Img[i] * Val);	//double이 8바이트인데 byte는 1바이트임, 다시 형변환 해줘야한다.
+	}
+}
+
+void ObtainHistogram(BYTE* Img, int* Histo, int W, int H)//히스토그램 만듦
+{
+	int ImgSize = W * H;
+	for (int i = 0; i < ImgSize; i++) {
+		Histo[Img[i]]++;
+	}
+}
+
+void ObtainAHistogram(int* Histo, int* AHisto)//누적 histogram 만듦
+{
+	for (int i = 0; i < 256; i++) {
+		for (int j = 0; j <= i; j++) {
+			AHisto[i] += Histo[j];
+		}
+	}
+}
+
+void HistogramStretching(BYTE * Img, BYTE * Out, int * Histo, int W, int H)
+{
+	int ImgSize = W * H;
+	BYTE Low, High;
+	for (int i = 0; i < 256; i++) {
+		if (Histo[i] != 0) { //왼->오 처음으로 0이 아닌 값을 low로 취함
+			Low = i;
+			break;
+		}
+	}
+	for (int i = 255; i >= 0; i--) {
+		if (Histo[i] != 0) { //오->왼 처음으로 0이 아닌 값을 high
+			High = i;
+			break;
+		}
+	}
+	for (int i = 0; i < ImgSize; i++) {
+		//정규화 공식
+		Out[i] = (BYTE)((Img[i] - Low) / (double)(High - Low) * 255.0);// 분자: 현재 화소값이 어느정도 위치인지? 
+	}
+}
+
+//평활화
+void HistogramEqualization(BYTE* Img, BYTE* Out, int* AHisto, int W, int H)//AHisto: 누적 histogram
+{
+	int ImgSize = W * H;
+	int Nt = W * H, Gmax = 255;//Gmax는 영상이 가능한 최대 밝기값
+	double Ratio = Gmax / (double)Nt;
+	BYTE NormSum[256];//정규화 합 저장할 배열, 자동으로 버림됨
+	for (int i = 0; i < 256; i++) {
+		NormSum[i] = (BYTE)(Ratio * AHisto[i]);
+	}
+	for (int i = 0; i < ImgSize; i++)
+	{
+		Out[i] = NormSum[Img[i]];//정규화 합 값으로 대체하고자 하는 원본 영상값
+	}
+}
+
+void Binarization(BYTE * Img, BYTE * Out, int W, int H, BYTE Threshold)//이진화, Threshold: 임계치
+{
+	int ImgSize = W * H;
+	for (int i = 0; i < ImgSize; i++) {
+		if (Img[i] < Threshold) Out[i] = 0;
+		else Out[i] = 255;
+	}
+}
+
+//---------------------------------------------------------------
+//[과제 3] Gonzalez 자동 이진화 임계치 결정 프로그램 구현
+
+int DivisionArea(int T, int * Histo)
+{
+	int G1 = 0, G2 = 0;//T보다 큰:G1 작은: G2
+	int cG1 = 0, cG2 = 0;//count
+	int aG1 = 0, aG2 = 0;
+	for (int i = 0; i < T; i++)
+	{
+		G1 += i * Histo[i];//i가 T보다 작으면 G1에 더함, Histo[i]는 i번째에 몇개가 있는가?임
+		cG1 += Histo[i];
+	}
+	for (int j = T; j < 256; j++)
+	{
+		G2 += j * Histo[j];
+		cG2 += Histo[j];
+	}
+	aG1 = G1 / cG1;//aG1에 평균 저장
+	aG2 = G2 / cG2;
+	T = (aG1 + aG2) / 2;
+	return T;
+}
+
+int GozalezBinThresh(BYTE * Img, int * Histo, int W, int H,int epsilon)
+{
+	BYTE Low=0 ,High=0;
+	BYTE init_T,T;//임계치
+	for (int i = 0; i < 256; i++) {
+		if (Histo[i] != 0) { 
+			Low = i;
+			break;
+		}
+	}
+	for (int i = 255; i >= 0; i--) {
+		if (Histo[i] != 0) { 
+			High = i;
+			break;
+		}
+	}
+	init_T = (Low - High) / 2;
+	T = init_T;//복사
+	printf("초기 임계치: %d\n", init_T);
+
+	do {
+		init_T = T;
+		T=DivisionArea(init_T, Histo);
+		printf("임계치: %d\n", T);
+	} while (abs(init_T - T) > epsilon);//엡실론보다 크면 반복
+
+	return T;
+}
+
+//[과제 3] Gonzalez 자동 이진화 임계치 결정 프로그램 구현
+//---------------------------------------------------------------
+
+void AverageConv(BYTE*Img, BYTE*Out, int W, int H)//박스 평활화
+{
+	double Kernel[3][3] = { 0.1111 ,0.1111 ,0.1111 ,
+						0.1111 ,0.1111 ,0.1111 ,
+						0.1111 ,0.1111 ,0.1111 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W-1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i+m)*W+(j+n)] * Kernel[m+1][n+1];//(m과n이 -1부터라서)
+				}
+			}
+			Out[i*W + j] = (BYTE)SumProduct;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void GausianAvrConv(BYTE*Img, BYTE*Out, int W, int H)//가우시안 평활화,센터에 가중치 제일 많이 준다.
+{
+	double Kernel[3][3] = { 0.0625 ,0.125 ,0.0625 ,
+						0.125 ,0.25 ,0.125 ,
+						0.06251 ,0.125 ,0.0625 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			Out[i*W + j] = (BYTE)SumProduct;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Prewitt_X_Conv(BYTE*Img, BYTE*Out, int W, int H)//Prewitt 마스크 X, 세로 경계가 더 잘 나온다.
+{
+	double Kernel[3][3] = { -1.0,0.0,1.0,
+							-1.0,0.0,1.0, 
+							-1.0,0.0,1.0};
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~765(절댓값씌움)까지의 값-->0~255
+			Out[i*W + j] = abs((long)SumProduct) / 3;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Prewitt_Y_Conv(BYTE*Img, BYTE*Out, int W, int H)//Prewitt 마스크 Y, 가로 경계가 더 잘 나온다.
+{
+	double Kernel[3][3] = { -1.0,-1.0,-1.0,
+							0.0,0.0,0.0,
+							1.0,1.0,1.0 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~765(절댓값씌움)까지의 값-->0~255
+			Out[i*W + j] = abs((long)SumProduct) / 3;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Sobel_X_Conv(BYTE*Img, BYTE*Out, int W, int H)//Prewitt 마스크 X, 세로 경계가 더 잘 나온다.
+{
+	double Kernel[3][3] = { -1.0,0.0,1.0,
+							-2.0,0.0,2.0,
+							-1.0,0.0,1.0 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~1020(절댓값씌움)까지의 값-->0~255
+			Out[i*W + j] = abs((long)SumProduct) / 4;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Sobel_Y_Conv(BYTE*Img, BYTE*Out, int W, int H)//Prewitt 마스크 Y, 가로 경계가 더 잘 나온다.
+{
+	double Kernel[3][3] = { -1.0,-2.0,-1.0,
+							0.0,0.0,0.0,
+							1.0,2.0,1.0 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~1020(절댓값씌움)까지의 값-->0~255
+			Out[i*W + j] = abs((long)SumProduct) / 4;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Laplace_Conv(BYTE*Img, BYTE*Out, int W, int H)
+{
+	double Kernel[3][3] = { -1.0, -1.0, -1.0, 
+							-1.0, 8.0,-1.0, 
+							-1.0, -1.0, -1.0};
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~2040(절댓값씌움)까지의 값-->0~255
+			Out[i*W + j] = abs((long)SumProduct) / 8;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void Laplace_Conv_DC(BYTE*Img, BYTE*Out, int W, int H)//Noise 확인차
+{
+	double Kernel[3][3] = { -1.0, -1.0, -1.0,
+							-1.0, 9.0,-1.0,	//커널의 합이1, 원래 영상의 화소 밝기 유지됨
+							-1.0, -1.0, -1.0 };
+
+	double SumProduct = 0.0;
+	for (int i = 1; i < H - 1; i++)//Y좌표,행,세로방향, 위아래왼쪽오른쪽 margin을 위하여 1부터시작, -1함
+	{
+		for (int j = 1; j < W - 1; j++)//X좌표,열, 가로방향
+		{
+			//i,j:커널의 센터 위치
+			for (int m = -1; m <= 1; m++)//커널의 행, m=-1윗행, m=0센터행, m=1아래행
+			{
+				for (int n = -1; n <= 1; n++)//커널의 열, n=-1왼쪽열 n=1오른쪽열
+				{
+					//i*W+j: 1차원 배열에서 i,j에 해당하는 위치 indexing
+					//i:행 j:열
+					//Y*W+X(Y:Y좌표, X:X좌표)
+					SumProduct += Img[(i + m)*W + (j + n)] * Kernel[m + 1][n + 1];//(m과n이 -1부터라서)
+				}
+			}
+			//0~255사이가 나오지 않을 것임
+			//0~2295(절댓값씌움)까지의 값, clipping
+			if (SumProduct > 255.0)
+				Out[i*W + j] = 255;
+			else if (SumProduct < 0.0)
+				Out[i*W + j] = 0;
+			else
+				Out[i*W + j] = (BYTE)SumProduct;
+			SumProduct = 0.0;
+		}
+	}
+}
+
+void SaveBMPFile(BITMAPFILEHEADER hf, BITMAPINFOHEADER hInfo, RGBQUAD*hRGB, 
+	BYTE*Output, int W, int H, const char*FileName)
+{
+	//파일 저장
+	FILE* fp = fopen(FileName, "wb");		//없는 파일->새로 생성, wb: write binary
+	fwrite(&hf, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);		//기록: fwrite 기록할때는 1byte단위로
+	fwrite(&hInfo, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
+	fwrite(hRGB, sizeof(RGBQUAD), 256, fp);
+	fwrite(Output, sizeof(BYTE), W*H, fp);	//영상의 화소 정보 출력, 영상 처리한 결과
+	fclose(fp);
+}
+
+void swap(BYTE* a, BYTE* b)
+{
+	BYTE temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+BYTE Median(BYTE*arr, int size)//3*3이면 9 들어오고 5*5이면 25...
+{
+	// 오름차순 정렬, 버블정렬 이용(?)
+	const int S = size;//리터럴 상수
+	for (int i = 0; i < size - 1; i++) // pivot index, 마지막껀 pivot이 될 필요가 없다.
+	{
+		for (int j = i + 1; j < size; j++) // 비교대상 index
+		{
+			if (arr[i] > arr[j]) 
+				swap(&arr[i], &arr[j]);//&:call by reference, 주소 넘긴다
+		}
+	}
+	return arr[S / 2];//중간에 해당하는 index
+}
+
+BYTE MaxPooling(BYTE* arr, int size)
+{
+	// 오름차순 정렬
+	const int S = size;//리터럴 상수
+	for (int i = 0; i < size - 1; i++) // pivot index
+	{
+		for (int j = i + 1; j < size; j++) // 비교대상 index
+		{
+			if (arr[i] > arr[j]) 	swap(&arr[i], &arr[j]);
+		}
+	}
+	return arr[S - 1];//가장 큰 값 출력
+}
+
+BYTE MinPooling(BYTE* arr, int size)
+{
+	// 오름차순 정렬
+	const int S = size;//리터럴 상수
+	for (int i = 0; i < size - 1; i++) // pivot index
+	{
+		for (int j = i + 1; j < size; j++) // 비교대상 index
+		{
+			if (arr[i] > arr[j]) 	swap(&arr[i], &arr[j]);
+		}
+	}
+	return arr[0];//가장 작은 값 출력
+}
+
+//======================================================================================
+int main()
+{
+	BITMAPFILEHEADER hf; // BMP 파일헤더 14바이트
+	BITMAPINFOHEADER hInfo; // BMP 인포헤더 40바이트
+	RGBQUAD hRGB[256]; // 팔레트 (256*4Bytes) 1024바이트
+
+	FILE* fp;	//fp: 데이터를 읽거나 내보낼 때 필요
+	//fp = fopen("coin.bmp", "rb");
+	//fp = fopen("LENNA.bmp", "rb");
+	fp = fopen("LENNA_impulse.bmp", "rb");
+	//fp = fopen("LENNA_gauss.bmp", "rb");
+	//rb: read binary, 파일에서 정보를 읽어오겠다. (txt일땐 rt이용)
+	//파일 포인터는 항상 주소나 위치를 가리킨다. 맨 첫번째 가리킴.
+
+	if (fp == NULL) //예외검사
+	{
+		printf("File not found!\n");
+		return -1;
+	}
+
+	//fread함수로 정보를 읽어서 메모리 변수에 담음
+	fread(&hf, sizeof(BITMAPFILEHEADER), 1, fp);	//14Bytes만큼 읽어서 hf에 담음. ->이제 다음 위치 가리킴
+	fread(&hInfo, sizeof(BITMAPINFOHEADER), 1, fp);	//40bytes만큼 읽어서 hinfo에 담음
+	fread(hRGB, sizeof(RGBQUAD), 256, fp);			//4*256만큼 읽어서 hRGP에 담음
+	//배열의 이름 자체가 주소이므로 & 안붙힌다., RGPQUAD가 4bytes이므로 256번 불러온다.
+
+	//영상의 화소정보 읽기
+	int ImgSize = hInfo.biWidth*hInfo.biHeight;	//영상의 가로 사이즈*세로 사이즈=영상의 전체 사이즈
+	BYTE*Image = (BYTE*)malloc(ImgSize);	//ImgSize만큼 동적할당, Image: 원래 영상 화소 정보
+	BYTE*Output = (BYTE*)malloc(ImgSize);	//Output: 영상이 처리된 결과 담음
+	//malloc->동적할당한 메모리의 첫번째 주소 반환, void의 포인터라서 강제 형변환이 필요하다.
+	//BYTE * Temp = (BYTE*)malloc(ImgSize);//임시 배열
+
+
+	fread(Image, sizeof(BYTE), ImgSize, fp);//영상의 화소정보, 그 위치에서부터 1바이트씩 ImgSize만큼 현재 file pointer부터 읽어들임
+	fclose(fp);	//파일 포인터와 파일간의 관계를 끊는다.
+//==================================================================================
+	
+	//--------------------------------------------------
+	//[실습]w2+[과제 2] 3개 이미지파일 생성하는 프로그램
+	/*
+	BYTE * Output1 = (BYTE *)malloc(ImgSize);
+	BYTE * Output2 = (BYTE *)malloc(ImgSize);
+	BYTE * Output3 = (BYTE *)malloc(ImgSize);
+
+	for (int i = 0; i < ImgSize; i++)
+	{
+		Output1[i] = Image[i];
+		Output2[i] = Image[i] + 50;
+		Output3[i] = 255 - Image[i];
+
+	}
+
+	fp = fopen("output1.bmp", "wb");
+	fwrite(&hf, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
+	fwrite(&hInfo, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
+	fwrite(hRGB, sizeof(RGBQUAD), 256, fp);
+	fwrite(Output1, sizeof(BYTE), ImgSize, fp);
+	fclose(fp);
+	//SaveBMPFile(hf, hInfo, hRGB, Output1, hInfo.biWidth, hInfo.biHeight, "output1.bmp");
+
+	fp = fopen("output2.bmp", "wb");
+	fwrite(&hf, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
+	fwrite(&hInfo, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
+	fwrite(hRGB, sizeof(RGBQUAD), 256, fp);
+	fwrite(Output2, sizeof(BYTE), ImgSize, fp);
+	fclose(fp);
+	//SaveBMPFile(hf, hInfo, hRGB, Output2, hInfo.biWidth, hInfo.biHeight, "output2.bmp");
+
+	fp = fopen("output3.bmp", "wb");
+	fwrite(&hf, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
+	fwrite(&hInfo, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
+	fwrite(hRGB, sizeof(RGBQUAD), 256, fp);
+	fwrite(Output3, sizeof(BYTE), ImgSize, fp);
+	fclose(fp);
+	//SaveBMPFile(hf, hInfo, hRGB, Output3, hInfo.biWidth, hInfo.biHeight, "output3.bmp");
+
+	free(Image);
+	free(Output1);
+	free(Output2);
+	free(Output3);*/
+	//[실습]w2+[과제 2] 3개 이미지파일 생성하는 프로그램
+	//--------------------------------------------------
+
+	//--------------------------------------------------
+	//[실습]w3
+	int Histo[256] = { 0 };
+	int AHisto[256] = { 0 };
+
+	/*
+	//ObtainAHistogram(Histo, AHisto);
+	//HistogramEqualization(Image, Output, AHisto, hInfo.biWidth, hInfo.biHeight);
+	
+	//HistogramStretching(Image, Output, Histo, hInfo.biWidth, hInfo.biHeight);
+	//InverseImage(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	//BrightnessAdj(Image, Output, hInfo.biWidth, hInfo.biHeight, 70);
+	//ContrastAdj(Image, Output, hInfo.biWidth, hInfo.biHeight, 0.5);
+	*/
+	//[실습]w3
+	//--------------------------------------------------
+	
+	//--------------------------------------------------
+	//[과제 3] Gonzalez 자동 이진화 임계치 결정 프로그램 구현
+	/*
+	//ObtainHistogram(Image, Histo, hInfo.biWidth, hInfo.biHeight);
+	//int Thres = GozalezBinThresh(Image, Histo, hInfo.biWidth, hInfo.biHeight, 3);//엡실론:3
+	//Binarization(Image, Output, hInfo.biWidth, hInfo.biHeight, Thres);*/
+	//[과제 3] Gonzalez 자동 이진화 임계치 결정 프로그램 구현
+	//--------------------------------------------------
+
+	//--------------------------------------------------
+	//[실습]w4
+	/*
+	//AverageConv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	//GausianAvrConv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	//Prewitt_X_Conv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	//Prewitt_Y_Conv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	
+	//---X,Y둘다 하고싶을 때
+	Prewitt_X_Conv(Image, Temp, hInfo.biWidth, hInfo.biHeight);
+	Prewitt_Y_Conv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	for (int i = 0; i < ImgSize; i++)
+	{
+		if (Temp[i] > Output[i])
+			Output[i] = Temp[i];//Temp의 경계(X돌린 결과)가 더 뚜렷하면 이를 반영
+	}
+	
+	//Laplace_Conv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+
+	//GausianAvrConv(Image, Temp, hInfo.biWidth, hInfo.biHeight);
+	//Laplace_Conv_DC(Temp, Output, hInfo.biWidth, hInfo.biHeight);//Noise 제거 후 강화
+	//Binarization(Output, Output, hInfo.biWidth, hInfo.biHeight, 40);
+	*/
+	//[실습]w4
+	//--------------------------------------------------
+
+	//--------------------------------------------------
+	//[실습]w5- Median filtering
+	//Median Filtering
+	/*
+	BYTE temp[9];
+	int W = hInfo.biWidth, H = hInfo.biHeight;
+	int i, j;
+	for (i = 1; i < H - 1; i++) {		//i: 현재 행
+		for (j = 1; j < W - 1; j++) {	//j: 현재 열
+			temp[0] = Image[(i - 1) * W + j-1];
+			temp[1] = Image[(i - 1) * W + j];
+			temp[2] = Image[(i - 1) * W + j+1];
+			temp[3] = Image[i * W + j-1];
+			temp[4] = Image[i * W + j]; //center, 현재 위치 i,j
+			temp[5] = Image[i * W + j+1];
+			temp[6] = Image[(i + 1) * W + j-1];
+			temp[7] = Image[(i + 1) * W + j];
+			temp[8] = Image[(i + 1) * W + j+1];
+
+			//Output[i * W + j] = Median(temp, 9); //Median: 중간에 해당하는 값 반환
+			//Output[i * W + j] = MaxPooling(temp, 9);//밝은 화소값들(salt noise)이 늘어날 것이다.
+			Output[i * W + j] = MinPooling(temp, 9);//pepper noise가 증가할 것이다.
+		}
+	}
+	*/
+	
+	//AverageConv(Image, Output, hInfo.biWidth, hInfo.biHeight);
+	//[실습] w5 끝
+	//--------------------------------------------------
+
+	//#################################################################
+	//#################################################################
+	//#################################################################이번과제
+	//#################################################################
+	//--------------------------------------------------
+	//[과제 w5]Median filter 사이즈에 따른 결과 비교
+	// Median filtering
+
+	//int Length = 5;  // 마스크의 한 변의 길이
+	//int Length = 7;  // 마스크의 한 변의 길이
+	int Length = 9;  // 마스크의 한 변의 길이
+		
+	int Margin = Length / 2; //영상 밖 영역은 처리되지 않도록 하기 위하여 Margin을 설정한다.
+
+	int WSize = Length * Length;//필터 사이즈를 Wsize에 저장한다. (필터는 정사각형이므로 한변의 길이 제곱)
+
+	BYTE* temp = (BYTE*)malloc(sizeof(BYTE) * WSize);//median filtering을 하기 위해 필터 사이즈만큼의 temp라는 배열을 동적할당한다.
+
+	int W = hInfo.biWidth, H = hInfo.biHeight;	//영상의 width와 height를 W와 H에 저장한다.
+
+	int i, j, m, n;//변수선언
+
+	for (i = Margin; i < H - Margin; i++) { //영상의 행(Y좌표),세로 방향으로 이동, Margin을 고려하여 시작점과 끝나는 지점 지정
+
+		for (j = Margin; j < W - Margin; j++) { //영상의 열(X좌표),가로 방향으로 이동, Margin을 고려하여 시작점과 끝나는 지점 지정
+
+			for (m = -Margin; m <= Margin; m++) {//temp 배열에서의 행, m=0일 때 center행, m<0일때 center의 위쪽 행, m>0일 때는 아래쪽 행
+
+				for (n = -Margin; n <= Margin; n++) { //temp 배열에서의 열, n=0일 때 center열, n<0일때 center의 왼쪽 열, n>0일 때는 오른쪽 열
+
+					temp[(m + Margin) * Length + (n + Margin)] = Image[(i + m)*W + j + n];//영상의 i행 j열(m=0,n=0일 때)과 그 주변의 값들을 temp 배열에 복사
+
+				}
+
+			}
+
+			Output[i * W + j] = Median(temp, WSize);//Median 함수를 통해 반환된 Median 값을 Output 배열의 i행j열 위치에 저장
+
+		}
+
+	}
+	//SaveBMPFile(hf, hInfo, hRGB, Output, hInfo.biWidth, hInfo.biHeight, "median_5.bmp");
+	//SaveBMPFile(hf, hInfo, hRGB, Output, hInfo.biWidth, hInfo.biHeight, "median_7.bmp");
+	SaveBMPFile(hf, hInfo, hRGB, Output, hInfo.biWidth, hInfo.biHeight, "median_9.bmp");
+	free(temp);
+
+	// Median filtering 
+
+	//[과제 w5]Median filter 사이즈에 따른 결과 비교
+	//--------------------------------------------------
+	//#################################################################
+	//#################################################################
+	//#################################################################
+	//#################################################################
+	//==================================================================================
+
+	//SaveBMPFile(hf, hInfo, hRGB, Output, hInfo.biWidth, hInfo.biHeight, "output.bmp");
+	free(Image);
+	free(Output);
+	//free(Temp);
+	return 0;
+}

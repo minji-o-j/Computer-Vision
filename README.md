@@ -45,6 +45,16 @@
 ![image](https://user-images.githubusercontent.com/45448731/91143628-c67deb00-e6ed-11ea-8faf-519316f455fc.png)  
 <br>
 
+#### ◼ week 10 - [color image](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week10_color)
+- color strip  
+<img src="https://user-images.githubusercontent.com/45448731/91144099-7fdcc080-e6ee-11ea-9868-6ee7b6b3a610.png" width="360" height="240">
+
+- gradation  
+<img src="https://user-images.githubusercontent.com/45448731/91144064-718ea480-e6ee-11ea-93ab-684f61efae92.png" width="360" height="240">
+<br>
+
+#### ◼ week 5 - 
+#### ◼ week 5 - 
 #### ◼ week 5 - 
 #### ◼ week 5 - 
 

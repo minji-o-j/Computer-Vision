@@ -26,11 +26,8 @@
 - noise 이미지 (gauss, impulse)  
 ![image](https://user-images.githubusercontent.com/45448731/91131706-f2966d80-e6e7-11ea-9efc-8fd9e312a964.png)  ![image](https://user-images.githubusercontent.com/45448731/91131810-faeea880-e6e7-11ea-8027-49ddbdc3ecc9.png)
 
-- average filter  
-![image](https://user-images.githubusercontent.com/45448731/91132593-31c4be80-e6e8-11ea-967e-4a9fdf7db1dd.png)
-
-- median filter  
-![image](https://user-images.githubusercontent.com/45448731/91132700-38ebcc80-e6e8-11ea-9a33-287c31fb153b.png)
+- average filter(좌), median filter(우)  
+![image](https://user-images.githubusercontent.com/45448731/91132593-31c4be80-e6e8-11ea-967e-4a9fdf7db1dd.png)  ![image](https://user-images.githubusercontent.com/45448731/91132700-38ebcc80-e6e8-11ea-9a33-287c31fb153b.png)
 
 - median max, min  
 ![image](https://user-images.githubusercontent.com/45448731/91133127-5882f500-e6e8-11ea-97fc-9c0f270a4ba6.png)  ![image](https://user-images.githubusercontent.com/45448731/91133233-5faa0300-e6e8-11ea-9180-c06b0eb73cad.png)

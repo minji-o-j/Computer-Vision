@@ -38,7 +38,11 @@
 <img src="https://user-images.githubusercontent.com/45448731/91142251-6ab26280-e6eb-11ea-9c00-c26de08d6f5c.png" width="320" height="250">  <img src="https://user-images.githubusercontent.com/45448731/91142267-6ede8000-e6eb-11ea-887f-d8820140c38a.png" width="250" height="250">
 <br>
 
-#### ◼ week 5 - 
+#### ◼ week 7 - [회전](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week7_%ED%9A%8C%EC%A0%84)
+- 45° 회전  
+![image](https://user-images.githubusercontent.com/45448731/91143628-c67deb00-e6ed-11ea-8faf-519316f455fc.png)  
+<br>
+
 #### ◼ week 5 - 
 #### ◼ week 5 - 
 

@@ -6,6 +6,7 @@
 [noise제거 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week5_%EA%B3%BC%EC%A0%9C1%20%ED%92%80%EC%9D%B4%2C%20%EB%85%B8%EC%9D%B4%EC%A6%88%20%EC%A0%9C%EA%B1%B0%20%EC%8B%A4%EC%8A%B5)  
 [라벨링 및 경계 검출 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week6_%EB%9D%BC%EB%B2%A8%EB%A7%81%20%EB%B0%8F%20%EA%B2%BD%EA%B3%84%20%EA%B2%80%EC%B6%9C%20%EC%8B%A4%EC%8A%B5)   
 [회전](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week7_%ED%9A%8C%EC%A0%84)  
+[color image](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week10_color)  
 
 --- 
 ## 실습
@@ -47,13 +48,25 @@
 
 #### ◼ week 10 - [color image](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week10_color)
 - color strip  
-<img src="https://user-images.githubusercontent.com/45448731/91144099-7fdcc080-e6ee-11ea-9868-6ee7b6b3a610.png" width="360" height="240">
+<img src="https://user-images.githubusercontent.com/45448731/91144099-7fdcc080-e6ee-11ea-9868-6ee7b6b3a610.png" width="360" height="240">  
 
 - gradation  
-<img src="https://user-images.githubusercontent.com/45448731/91144064-718ea480-e6ee-11ea-93ab-684f61efae92.png" width="360" height="240">
+ <img src="https://user-images.githubusercontent.com/45448731/91144064-718ea480-e6ee-11ea-93ab-684f61efae92.png" width="360" height="240">  
 <br>
 
-#### ◼ week 5 - 
+#### ◼ week 11 - [컬러 영상 영역 추출](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week11_%EC%BB%AC%EB%9F%AC%EC%98%81%EC%83%81%20%EC%98%81%EC%97%AD%20%EC%B6%94%EC%B6%9C)
+- 원본 image
+<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240">  
+
+- RGB 추출  
+<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240">  <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> 
+
+- YCbCr 추출  
+<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> 
+
+
+<br>
+
 #### ◼ week 5 - 
 #### ◼ week 5 - 
 #### ◼ week 5 - 

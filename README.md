@@ -4,6 +4,8 @@
 [이진화](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week3_%EA%B3%BC%EC%A0%9C%2B%EC%8B%A4%EC%8A%B5)   
 [prewitt, sobel filter](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week4_%EC%BD%94%EB%94%A9%20%EC%8B%A4%EC%8A%B5)  
 [noise제거 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week5_%EA%B3%BC%EC%A0%9C1%20%ED%92%80%EC%9D%B4%2C%20%EB%85%B8%EC%9D%B4%EC%A6%88%20%EC%A0%9C%EA%B1%B0%20%EC%8B%A4%EC%8A%B5)  
+[라벨링 및 경계 검출 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week6_%EB%9D%BC%EB%B2%A8%EB%A7%81%20%EB%B0%8F%20%EA%B2%BD%EA%B3%84%20%EA%B2%80%EC%B6%9C%20%EC%8B%A4%EC%8A%B5)   
+[회전](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week7_%ED%9A%8C%EC%A0%84)  
 
 --- 
 ## 실습

@@ -1,5 +1,11 @@
 # Computer-Vision
----
+## 실습
+[bmp 입출력 연습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week2_bmp%EC%9E%85%EC%B6%9C%EB%A0%A5)  
+[이진화](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week3_%EA%B3%BC%EC%A0%9C%2B%EC%8B%A4%EC%8A%B5)   
+[prewitt, sobel filter](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week4_%EC%BD%94%EB%94%A9%20%EC%8B%A4%EC%8A%B5)  
+[noise제거 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week5_%EA%B3%BC%EC%A0%9C1%20%ED%92%80%EC%9D%B4%2C%20%EB%85%B8%EC%9D%B4%EC%A6%88%20%EC%A0%9C%EA%B1%B0%20%EC%8B%A4%EC%8A%B5)  
+
+--- 
 ## 실습
 #### ◼ week 2 - [bmp 입출력 연습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week2_bmp%EC%9E%85%EC%B6%9C%EB%A0%A5)
 - LENNA 원본, 반전  

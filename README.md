@@ -48,10 +48,10 @@
 
 #### ◼ week 10 - [color image](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week10_color)
 - color strip  
-<img src="https://user-images.githubusercontent.com/45448731/91144099-7fdcc080-e6ee-11ea-9868-6ee7b6b3a610.png" width="360" height="240">  
+  <img src="https://user-images.githubusercontent.com/45448731/91144099-7fdcc080-e6ee-11ea-9868-6ee7b6b3a610.png" width="360" height="240">  
 
 - gradation  
- <img src="https://user-images.githubusercontent.com/45448731/91144064-718ea480-e6ee-11ea-93ab-684f61efae92.png" width="360" height="240">  
+  <img src="https://user-images.githubusercontent.com/45448731/91144064-718ea480-e6ee-11ea-93ab-684f61efae92.png" width="360" height="240">  
 <br>
 
 #### ◼ week 11 - [컬러 영상 영역 추출](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week11_%EC%BB%AC%EB%9F%AC%EC%98%81%EC%83%81%20%EC%98%81%EC%97%AD%20%EC%B6%94%EC%B6%9C)

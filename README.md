@@ -10,10 +10,7 @@
 ![image](https://user-images.githubusercontent.com/45448731/91129990-de517100-e6e5-11ea-82bf-6c4fd37f8478.png)
  
 #### week 4 - [prewitt, sobel filter](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week4_%EC%BD%94%EB%94%A9%20%EC%8B%A4%EC%8A%B5)
-- prewitt  
-![image](https://user-images.githubusercontent.com/45448731/91130761-1efdba00-e6e7-11ea-85c6-765af1cbcc1b.png)
-
-- sobel  
-![image](https://user-images.githubusercontent.com/45448731/91130770-245b0480-e6e7-11ea-93c3-90bf5ec31b40.png)
+- prewitt(좌), sobel(우)  
+![image](https://user-images.githubusercontent.com/45448731/91130761-1efdba00-e6e7-11ea-85c6-765af1cbcc1b.png)  ![image](https://user-images.githubusercontent.com/45448731/91130770-245b0480-e6e7-11ea-93c3-90bf5ec31b40.png)
 ---
 ## 과제

@@ -35,7 +35,7 @@
 
 #### ◼ week 6 - [라벨링 및 경계 검출 실습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week6_%EB%9D%BC%EB%B2%A8%EB%A7%81%20%EB%B0%8F%20%EA%B2%BD%EA%B3%84%20%EA%B2%80%EC%B6%9C%20%EC%8B%A4%EC%8A%B5)
 - 동공(좌), 동전(우) edge 검출  
-![image](https://user-images.githubusercontent.com/45448731/91142251-6ab26280-e6eb-11ea-9c00-c26de08d6f5c.png)  ![image](https://user-images.githubusercontent.com/45448731/91142267-6ede8000-e6eb-11ea-887f-d8820140c38a.png){: width="100%" height="100%"}
+<img src="https://user-images.githubusercontent.com/45448731/91142251-6ab26280-e6eb-11ea-9c00-c26de08d6f5c.png" width="320" height="250">  <img src="https://user-images.githubusercontent.com/45448731/91142267-6ede8000-e6eb-11ea-887f-d8820140c38a.png" width="250" height="250">
 <br>
 
 #### ◼ week 5 - 

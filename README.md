@@ -1,4 +1,4 @@
-# Computer-Vision
+# Computer-Vision (작성중)
 ## 실습
 [bmp 입출력 연습](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week2_bmp%EC%9E%85%EC%B6%9C%EB%A0%A5)  
 [이진화](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week3_%EA%B3%BC%EC%A0%9C%2B%EC%8B%A4%EC%8A%B5)   
@@ -57,13 +57,13 @@
 #### ◼ week 11 - [컬러 영상 영역 추출](https://github.com/minji-o-j/Computer-Vision/tree/master/practice/week11_%EC%BB%AC%EB%9F%AC%EC%98%81%EC%83%81%20%EC%98%81%EC%97%AD%20%EC%B6%94%EC%B6%9C)  
 
 - 원본 image  
-  <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240">  
+  <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="300" height="200">  
 
 - RGB 추출  
-<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240">  <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> 
+<img src="https://user-images.githubusercontent.com/45448731/91145286-2d040880-e6f0-11ea-884b-8872fa87b5ff.png" width="300" height="200">  <img src="https://user-images.githubusercontent.com/45448731/91145286-2d040880-e6f0-11ea-884b-8872fa87b5ff.png" width="300" height="200">  <img src="https://user-images.githubusercontent.com/45448731/91145286-2d040880-e6f0-11ea-884b-8872fa87b5ff.png" width="300" height="200">  <img src="https://user-images.githubusercontent.com/45448731/91145286-2d040880-e6f0-11ea-884b-8872fa87b5ff.png" width="300" height="200">  
 
 - YCbCr 추출  
-<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> 
+<img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> <img src="https://user-images.githubusercontent.com/45448731/91144468-08f3f780-e6ef-11ea-9fd7-eafc7e0e5534.png" width="360" height="240"> 
 
 
 <br>
